@@ -1,0 +1,167 @@
+# WinDD Frontend Project Documentation
+
+## Project Summary
+
+The WinDD Frontend is a React Native application built with Expo, designed for task and project management. It allows users to authenticate, manage tasks (including subtasks and comments), view projects, and potentially interact with chat features. The application currently uses a mock service layer (`MockService.ts` and `mockData.ts`) to simulate backend interactions, allowing for frontend development and testing without a live backend.
+
+## Current Status and Issues
+
+### Authentication Issues (Current)
+- AsyncStorage-related issues affecting login functionality
+- Potential causes:
+  - Native module initialization problems due to package conflicts
+  - AsyncStorage not properly linked or initialized
+  - Conflicts between multiple node_modules affecting native module resolution
+- Current mock authentication setup:
+  - Test credentials: `test@example.com` (any password works in mock mode)
+  - Mock token: 'mock-token-123'
+  - Token storage implementation in `MockService.ts` using AsyncStorage
+  - API client interceptor in `apiClient.ts` for token management
+
+### Package Management Issues (New)
+- Multiple package managers detected (npm and yarn)
+- Duplicate node_modules directories found:
+  - `node_modules/`
+  - `node_modules 2/`
+- Conflicting lock files present:
+  - `yarn.lock`
+  - `package-lock.json`
+  - `package-lock 2.json`
+
+### Immediate Action Items
+1. Clean up package management:
+   ```bash
+   rm -rf node_modules/
+   rm -rf node_modules\ 2/
+   rm package-lock.json
+   rm package-lock\ 2.json
+   rm yarn.lock
+   rm -rf .expo/
+   ```
+2. Standardize on yarn as package manager
+3. Reinstall dependencies with:
+   ```bash
+   yarn install
+   ```
+4. Restart application:
+   ```bash
+   yarn start --clear
+   ```
+5. Verify AsyncStorage functionality:
+   - Test token storage and retrieval
+   - Verify API client interceptor
+   - Check authentication state persistence
+
+## How it Works
+
+1.  **Initialization (`App.tsx`):** The app starts, sets up context providers (`AuthProvider`, potentially `ThemeProvider`), and initializes navigation (`NavigationContainer`, `AppNavigator`).
+2.  **Authentication (`AuthContext.tsx`, `useAuth.ts`):**
+    *   Checks for a stored token in AsyncStorage.
+    *   If a token exists (and is valid, though validation isn't fully implemented in mock mode), the user is considered authenticated.
+    *   Uses `UserService.ts` for login/signup/logout operations.
+3.  **Navigation (`AppNavigator.tsx`):**
+    *   Displays a loading indicator initially.
+    *   If the user is authenticated, renders the `MainTabs` navigator.
+    *   If the user is not authenticated, renders the `AuthStack` navigator (Login/Signup screens).
+4.  **API Interaction (Mocked):**
+    *   Services (`UserService.ts`, `TaskService.ts`) handle data fetching and manipulation.
+    *   An `API_CONFIG` (`src/config/api.ts`) determines whether to use the real API or the mock service.
+    *   Currently, `useMock` is set to `true`, directing all calls to `MockService.ts`.
+    *   `MockService.ts` uses data from `src/mocks/mockData.ts` to simulate responses with delays.
+5.  **UI Components:** Screens are built using React Native components, styled with StyleSheet, and potentially utilize custom components found in `src/components/`.
+6.  **State Management:** Primarily uses React Context (`AuthContext`) for authentication state and component state (`useState`) for screen-level data.
+
+## Services
+
+*   **`UserService.ts` (`src/services/UserService.ts`)**
+    *   **Progress:**
+        *   Handles user login, registration, logout, and fetching the current user.
+        *   Integrated with `MockService` to use mock data when `API_CONFIG.useMock` is true.
+        *   Handles token storage in AsyncStorage (wrapped with error handling).
+        *   Basic error handling for API/mock responses.
+        *   Placeholder comments for real API calls.
+*   **`TaskService.ts` (`src/services/TaskService.ts`)**
+    *   **Progress:**
+        *   Handles fetching all tasks, fetching a single task, creating, updating, and deleting tasks.
+        *   Integrated with `MockService` to use mock data.
+        *   Placeholder comments for real API calls.
+        *   Placeholder comments for subtask and comment methods (mock logic not yet implemented).
+*   **`MockService.ts` (`src/services/MockService.ts`)**
+    *   **Current Implementation:**
+        *   Provides mock implementations for:
+            - Login (with test credentials: `test@example.com`)
+            - Register
+            - Logout
+            - User management
+            - Task management
+            - Project management
+        *   Uses AsyncStorage for token persistence
+        *   Implements simulated network delays (500ms for login, 300ms for other operations)
+        *   Uses mock token: 'mock-token-123'
+        *   Safe AsyncStorage operations with error handling
+*   **`chatApi.ts` (`src/api/chatApi.ts`)**
+    *   **Progress:**
+        *   Defines function signatures for chat operations (get messages, send, delete, edit, subscribe).
+        *   Contains placeholder `fetch` calls and TODOs for real API implementation.
+        *   Includes a basic mock interval for simulating message subscriptions (not integrated with the main `MockService`).
+
+## Components (Partial List - Based on Recent Context)
+
+*   **Navigation (`src/navigation/`)**
+    *   `AppNavigator.tsx`: Root navigator, handles auth state switching.
+    *   `AuthStack.tsx`: Navigator for Login/Signup screens.
+    *   `MainTabs.tsx`: Tab navigator for the main app sections (structure needs inspection).
+    *   `CalendarNavigator.tsx`: Stack navigator for Calendar related screens.
+    *   *(Other navigators likely exist)*
+*   **Screens (`src/screens/`)**
+    *   `LoginScreen.tsx`: Handles user login form and logic.
+    *   `ProfileScreen.tsx`: Basic profile screen structure.
+    *   `CalendarScreen.tsx`: Displays calendar, fetches and marks tasks.
+    *   `EventFormScreen.tsx`: Placeholder for creating calendar events.
+    *   `TaskFormScreen.tsx`: Form for creating/editing tasks (implementation details not fully reviewed).
+    *   `TaskDetailsScreen/...`: Components related to showing task details (e.g., `Comment.tsx`).
+    *   `ChatroomScreen/...`: Components related to chat UI (e.g., `MessageList.tsx`).
+    *   *(Many other screens likely exist, e.g., Home, TaskList, Settings)*
+*   **Components (`src/components/`)**
+    *   `task/TaskCard.tsx`: Displays a summary of a task.
+    *   `task/TaskHeader.tsx`: Header for the task detail view.
+    *   `task/TaskInfo.tsx`: Displays detailed information about a task.
+    *   `task/TaskSubtasks.tsx`: Manages the display and interaction with subtasks.
+    *   `task/SubTask.tsx`: Displays a single subtask item.
+    *   `common/CircularProgress.tsx`: UI component for showing progress.
+    *   `home/TaskSummarySection.tsx`: Section on the home screen summarizing tasks.
+    *   *(Many other reusable components likely exist)*
+*   **Contexts (`src/contexts/`)**
+    *   `AuthContext.tsx`: Manages authentication state (user, token, loading status).
+    *   `ThemeContext.tsx`: Manages theme colors (implementation details not fully reviewed).
+*   **Hooks (`src/hooks/`)**
+    *   `useAuth.ts`: Provides easy access to auth context and login/signup functions.
+*   **Constants (`src/constants/`)**
+    *   `colors.ts`: Defines color palettes for light/dark modes via `getColors` function.
+*   **Types (`src/types/`)**
+    *   Defines TypeScript interfaces (e.g., `User.ts`, `Task.ts`, `chat.ts`).
+*   **Mocks (`src/mocks/`)**
+    *   `mockData.ts`: Central storage for mock data used by `MockService`.
+
+## Other Information
+
+*   **Package Management:** Currently in transition - needs standardization on yarn (previously mixed npm/yarn)
+*   **Configuration:** Uses `metro.config.js`, `babel.config.js`, `tsconfig.json`, `.eslintrc.js` for build and development tooling
+*   **Expo:** Project is managed using Expo tooling (version ^50.0.20)
+*   **Key Dependencies:**
+    - @react-native-async-storage/async-storage: ^1.21.0
+    - expo: ^50.0.20
+    - react: 18.2.0
+    - react-native: ^0.73.6
+    - axios: ^1.8.4
+*   **Potential Issues/Next Steps:**
+    *   Resolve package management conflicts by standardizing on yarn
+    *   Clean up duplicate node_modules and lock files
+    *   Implement mock logic for subtasks and comments in `MockService`
+    *   Refactor any remaining code still using the deleted `taskApi.ts` to use `TaskService.ts`
+    *   Review and potentially integrate `chatApi.ts` mocking into `MockService` or implement real backend calls
+    *   Add comprehensive error handling and user feedback (e.g., displaying login errors)
+    *   Implement real API calls in `UserService` and `TaskService` by replacing TODOs
+    *   Ensure theme switching (`ThemeContext`) is fully functional
+    *   Address any remaining linter errors or type inconsistencies
+    *   Verify AsyncStorage functionality after dependency cleanup
