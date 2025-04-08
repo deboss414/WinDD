@@ -34,25 +34,51 @@ WinDD/
 1. Clone the repository
 2. Install dependencies:
    ```bash
-   npm install
+   yarn install
    ```
 
 ### Running the App
 
 ```bash
 # Start the development server
-npm start
+yarn start
 
 # Run on iOS
-npm run ios
+yarn ios
 
 # Run on Android
-npm run android
+yarn android
 ```
+
+You can run the app in:
+- [Development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go)
 
 ## Dependencies
 
+### Core Dependencies
 - React Navigation
 - Axios
 - AsyncStorage
-- TypeScript 
+- TypeScript
+- Expo SDK
+
+### Development Tools
+- ESLint
+- Prettier
+- Jest for testing
+- TypeScript
+
+## Learn More
+
+- [Expo documentation](https://docs.expo.dev/)
+- [React Navigation documentation](https://reactnavigation.org/)
+- [TypeScript documentation](https://www.typescriptlang.org/)
+
+## Community and Support
+
+- [Expo on GitHub](https://github.com/expo/expo)
+- [Discord community](https://chat.expo.dev)
+- [React Native community](https://reactnative.dev/community/overview)
